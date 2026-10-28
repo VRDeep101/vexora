@@ -1,52 +1,124 @@
-# VEXORIA Landing Page
+# VEXORIA — Enter the Next Dimension
 
-A responsive cyberpunk landing page built with React, Vite, and regular CSS. The page has two main sections: the animated hero and the perspective tunnel.
+A responsive cyberpunk landing page built with React, Vite, and CSS. The experience combines a neon city hero, a cybernetic character, a compact navigation bar, social links, and a scroll-driven perspective tunnel with dimension cards.
+
+## Features
+
+- Responsive hero layout for desktop and mobile screens.
+- Neon-pink visual theme with a translucent navigation bar.
+- Animated hero entrance and subtle atmospheric effects.
+- Mouse-based parallax on supported desktop pointers.
+- Animated Home, About, and Games navigation borders.
+- Cyberpunk-style Join Us button.
+- Explore More image button that scrolls to the dimension section.
+- Left-side social links rail.
+- Scroll-driven perspective tunnel with nine staggered cards and a progress indicator.
+- Mobile navigation menu and reduced-motion support.
+- Locally stored image assets; no additional animation library is required.
+
+## Requirements
+
+- Node.js (an active LTS version is recommended)
+- npm
 
 ## Run locally
 
-```bash
-npm install
-npm run dev
-```
+1. Open a terminal in the project folder.
+2. Install dependencies:
 
-To create a production build:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+4. Open the local URL printed by Vite in your terminal.
+
+## Production build
+
+Create an optimized production build:
 
 ```bash
 npm run build
 ```
 
-## Included interactions
+Preview the production build locally:
 
-- A coordinated wordmark, character, and left social-rail entrance.
-- A thin translucent navigation bar and desktop cursor parallax.
-- The hero copy has been removed, leaving the VEXORIA artwork and a centered Explore More button.
-- A thin neon divider connects the hero scene to the lower-city extension artwork.
-- A scroll-driven handoff from the hero into the perspective tunnel.
-- A perspective tunnel with nine staggered cards that reveal earlier and stay in view through the end of the section.
-- Responsive navigation, touch-friendly layouts, and reduced-motion support.
+```bash
+npm run preview
+```
 
-The project keeps the existing React and Vite setup and uses standard CSS instead of adding another animation library.
+The generated production files are placed in `dist/`.
 
-## Navbar customization
+## Project structure
 
-The Home, About, and Games links use the Button 2-style hover animation. The top and bottom neon lines expand while the letter spacing increases. To customize it, edit these CSS variables near the top of `src/styles.css`:
+```text
+vexora-landing-page/
+├── index.html
+├── package.json
+├── README.md
+├── LICENSE
+└── src/
+    ├── main.jsx
+    ├── App.jsx
+    ├── styles.css
+    └── assets/
+        ├── city-bg.png
+        ├── city-lower-extension.png
+        ├── char.png
+        ├── vexora-text.png
+        ├── hero_text.png
+        ├── explore.png
+        └── ship.png
+```
 
-- `--nav-background-opacity`: lower it for a more transparent navbar.
-- `--nav-blur`: set the glass blur amount in pixels.
-- `--nav-border-opacity`: control the thin navbar border visibility.
-- `--nav-line-color`: change the hover-line color.
-- `--nav-hover-letter-spacing`: change how far the letters spread on hover.
-- `--nav-link-color`: change the normal navigation text color.
+## Important files
 
-These settings affect the navbar only and do not change the global page animations.
+- `src/App.jsx` — React layout, navigation actions, image loading, hero entrance sequence, parallax input, and scroll-driven tunnel-card movement.
+- `src/styles.css` — theme colours, layout, responsive breakpoints, button effects, and animations.
+- `src/assets/` — local artwork used by the hero and tunnel cards.
+- `index.html` — page title, viewport settings, theme colour, and description.
+- `package.json` — project dependencies and npm scripts.
 
+## Customization
 
-### Performance notes
+### Theme and navigation
 
-- Large visual assets use WebP to reduce transfer size while keeping transparency where needed.
-- The hero waits for its main character and wordmark images only; tunnel assets do not block the first reveal.
-- Tunnel card images use lazy loading and asynchronous decoding.
-- Pointer parallax updates CSS variables directly instead of re-rendering the whole React page on every mouse movement.
-- Mobile devices use lighter blur and particle effects.
+Open `src/styles.css` and look near the top for the CSS custom properties. These control the main pink accent, page colours, navigation transparency, blur, border, and hover-line appearance. The same file contains responsive rules and animation timings.
 
-The hero wordmark is a single transparent image at `src/assets/hero_text.webp`; it uses a CSS reveal animation rather than a frame-by-frame logo animation. The Explore More artwork position and spaceship size/height are controlled near the end of `src/styles.css`.
+### Hero artwork
+
+Replace the relevant image in `src/assets/` while keeping the filename the same, or update its import in `src/App.jsx` if you use a different filename.
+
+- `city-bg.png` — hero city background.
+- `char.png` — hero character and character cards.
+- `hero_text.png` — main VEXORIA wordmark image.
+- `explore.png` — Explore More button artwork.
+- `ship.png` — spaceship used in the hero fly-by.
+- `city-lower-extension.png` — lower-city background used by the tunnel section.
+- `vexora-text.png` — wordmark artwork used in tunnel cards.
+
+### Navigation and social links
+
+The navigation actions are defined in `src/App.jsx`. The current social links point to each platform's general website. Replace the `href` values in the `socialLinks` array with the project's real profile URLs before publishing.
+
+### Tunnel cards
+
+The card titles and artwork mappings are listed in the `tunnelCards` array near the top of `src/App.jsx`. Scroll progress, card spacing, depth, and movement are handled by the scroll effect in the same file; card appearance is styled in `src/styles.css`.
+
+## Notes
+
+- The Join Us, About, and Games buttons currently scroll to the dimension-tunnel section. Update their handlers in `src/App.jsx` if they should open separate pages or external links.
+- The character artwork determines which parts of the character are available to display. CSS can adjust positioning and cropping, but it cannot add missing artwork.
+- Before deployment, test the page on actual mobile and desktop browsers and replace any placeholder social URLs.
+- Keep image filenames consistent with the imports in `src/App.jsx` when replacing assets.
+
+## Author and license
+
+Copyright © 2026 Vrdeep101. All rights reserved.
+
+See [`LICENSE`](./LICENSE) for the terms that apply to this project. Do not assume that third-party fonts, libraries, or separately sourced artwork are covered by this project's license; check their respective terms before redistributing them.

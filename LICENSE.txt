@@ -1,0 +1,9 @@
+Copyright (c) 2026 Vrdeep101. All rights reserved.
+
+This project and its source code are protected by copyright law.
+
+You may view and run this project for personal learning, review, and evaluation purposes. You may not copy, modify, redistribute, republish, sublicense, or use this project or substantial portions of its source code for commercial purposes without prior written permission from the copyright holder.
+
+Third-party libraries, fonts, and assets may be subject to their own licenses and terms. This notice does not replace or override those terms.
+
+For permission beyond the uses described above, contact the copyright holder, Vrdeep101.
