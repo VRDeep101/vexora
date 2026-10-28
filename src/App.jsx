@@ -10,13 +10,13 @@ import {
   Youtube,
   Gamepad2,
 } from 'lucide-react';
-import cityBackground from './assets/city-bg.png';
-import lowerCityExtension from './assets/city-lower-extension.png';
-import cyborgCharacter from './assets/char.png';
-import vexoraWordmark from './assets/vexora-text.png';
-import heroTextImage from './assets/hero_text.png';
-import exploreButtonImage from './assets/explore.png';
-import spaceshipImage from './assets/ship.png';
+import cityBackground from './assets/city-bg.webp';
+import lowerCityExtension from './assets/city-lower-extension.webp';
+import cyborgCharacter from './assets/char.webp';
+import vexoraWordmark from './assets/vexora-text.webp';
+import heroTextImage from './assets/hero_text.webp';
+import exploreButtonImage from './assets/explore.webp';
+import spaceshipImage from './assets/ship.webp';
 
 const tunnelCards = [
   { title: 'NEON DISTRICT', type: 'city', image: cityBackground },
@@ -45,18 +45,18 @@ function App() {
   const heroRef = useRef(null);
   const tunnelRef = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [pointer, setPointer] = useState({ x: 0, y: 0 });
+  const updateTunnelRef = useRef(null);
   const [mouseEnabled, setMouseEnabled] = useState(false);
   const [assetsReady, setAssetsReady] = useState(false);
   const [introStage, setIntroStage] = useState('loading');
 
-  // Load the main images before starting the coordinated entrance.
+  // Only wait for the two main hero images, not every image used by the tunnel.
   useEffect(() => {
     let isMounted = true;
     let characterTimer;
     let readyTimer;
 
-    Promise.all([cityBackground, cyborgCharacter, vexoraWordmark, heroTextImage, exploreButtonImage, spaceshipImage].map((path) => new Promise((resolve) => {
+    Promise.all([heroTextImage, cyborgCharacter].map((path) => new Promise((resolve) => {
       const image = new Image();
       image.onload = resolve;
       image.onerror = resolve;
@@ -67,7 +67,7 @@ function App() {
       setAssetsReady(true);
       setIntroStage('wordmark');
 
-      // The character and social rail start before the wordmark animation finishes.
+      // Keep the cinematic timing without waiting for below-the-fold assets.
       characterTimer = window.setTimeout(() => {
         if (isMounted) setIntroStage('character');
       }, 480);
@@ -127,8 +127,10 @@ function App() {
         const end = Math.min(0.94, start + 0.72);
         const localProgress = clamp((progress - start) / (end - start), 0, 1);
         const angle = index * 137.5 * (Math.PI / 180);
-        const radiusX = window.innerWidth < 700 ? window.innerWidth * 0.2 : window.innerWidth * 0.27;
-        const radiusY = window.innerHeight * (index % 2 === 0 ? 0.17 : 0.22);
+        const isMobile = window.innerWidth < 700;
+        // Spread mobile cards much wider so they feel like the desktop tunnel, not a tight stack.
+        const radiusX = isMobile ? window.innerWidth * 0.44 : window.innerWidth * 0.27;
+        const radiusY = window.innerHeight * (isMobile ? 0.24 : (index % 2 === 0 ? 0.17 : 0.22));
         const pointerX = Number(tunnel.dataset.pointerX || 0);
         const pointerY = Number(tunnel.dataset.pointerY || 0);
         // Keep the cards in front of the camera when they finish moving forward.
@@ -150,6 +152,7 @@ function App() {
     const requestUpdate = () => {
       if (!frameId) frameId = window.requestAnimationFrame(updateScrollScenes);
     };
+    updateTunnelRef.current = requestUpdate;
 
     requestUpdate();
     window.addEventListener('scroll', requestUpdate, { passive: true });
@@ -158,20 +161,33 @@ function App() {
       window.cancelAnimationFrame(frameId);
       window.removeEventListener('scroll', requestUpdate);
       window.removeEventListener('resize', requestUpdate);
+      updateTunnelRef.current = null;
     };
   }, []);
 
   function handleHeroMouseMove(event) {
     if (!mouseEnabled || !heroRef.current) return;
+
     const bounds = heroRef.current.getBoundingClientRect();
-    setPointer({
-      x: (event.clientX - bounds.left) / bounds.width - 0.5,
-      y: (event.clientY - bounds.top) / bounds.height - 0.5,
-    });
+    const pointerX = (event.clientX - bounds.left) / bounds.width - 0.5;
+    const pointerY = (event.clientY - bounds.top) / bounds.height - 0.5;
+    const hero = heroRef.current;
+    const character = hero.querySelector('.character-wrap');
+
+    // Update CSS variables directly so pointer movement does not re-render the whole page.
+    hero.style.setProperty('--pointer-x', pointerX.toFixed(3));
+    hero.style.setProperty('--pointer-y', pointerY.toFixed(3));
+    character?.style.setProperty('--character-x', `${pointerX * -18}px`);
+    character?.style.setProperty('--character-y', `${pointerY * -12}px`);
   }
 
   function resetPointer() {
-    setPointer({ x: 0, y: 0 });
+    if (!heroRef.current) return;
+    heroRef.current.style.setProperty('--pointer-x', '0');
+    heroRef.current.style.setProperty('--pointer-y', '0');
+    const character = heroRef.current.querySelector('.character-wrap');
+    character?.style.setProperty('--character-x', '0px');
+    character?.style.setProperty('--character-y', '0px');
   }
 
   function handleTunnelPointerMove(event) {
@@ -179,7 +195,7 @@ function App() {
     const bounds = tunnelRef.current.getBoundingClientRect();
     tunnelRef.current.dataset.pointerX = String((event.clientX - bounds.left) / bounds.width - 0.5);
     tunnelRef.current.dataset.pointerY = String((event.clientY - bounds.top) / bounds.height - 0.5);
-    window.dispatchEvent(new Event('scroll'));
+    updateTunnelRef.current?.();
   }
 
   function scrollToSection(id) {
@@ -208,7 +224,6 @@ function App() {
         ref={heroRef}
         onMouseMove={handleHeroMouseMove}
         onMouseLeave={resetPointer}
-        style={{ '--pointer-x': pointer.x, '--pointer-y': pointer.y }}
       >
         <div className="hero-city" style={{ backgroundImage: `url(${cityBackground})` }} />
         <div className="hero-vignette" />
@@ -219,7 +234,7 @@ function App() {
         <div className="fog fog-two" aria-hidden="true" />
         <div className="particle-field" aria-hidden="true" />
         <div className="spaceship-flyby" aria-hidden="true">
-          <img src={spaceshipImage} alt="" draggable="false" />
+          <img src={spaceshipImage} alt="" draggable="false" loading="lazy" decoding="async" />
         </div>
 
         <header className="site-header">
@@ -280,16 +295,15 @@ function App() {
 
         <div className="hero-content">
           <div className="hero-branding-scroll">
-            <img className="hero-title-image" src={heroTextImage} alt="VEXORIA" draggable="false" />
+            <img className="hero-title-image" src={heroTextImage} alt="VEXORIA" draggable="false" loading="eager" fetchPriority="high" decoding="async" />
           </div>
 
           <div className="character-scroll-wrap">
           <div
             className="character-wrap"
-            style={{ '--character-x': `${pointer.x * -18}px`, '--character-y': `${pointer.y * -12}px` }}
           >
             <div className="character-halo" />
-            <img className="hero-character" src={cyborgCharacter} alt="Cybernetic heroine wearing a translucent neon-pink visor" draggable="false" />
+            <img className="hero-character" src={cyborgCharacter} alt="Cybernetic heroine wearing a translucent neon-pink visor" draggable="false" loading="eager" fetchPriority="high" decoding="async" />
           </div>
           </div>
 
@@ -299,7 +313,7 @@ function App() {
               onClick={() => scrollToSection('dimension-tunnel')}
               aria-label="Explore more"
             >
-              <img src={exploreButtonImage} alt="Explore more" draggable="false" />
+              <img src={exploreButtonImage} alt="Explore more" draggable="false" loading="eager" decoding="async" />
             </button>
           </div>
 
@@ -325,12 +339,12 @@ function App() {
           if (tunnelRef.current) {
             tunnelRef.current.dataset.pointerX = '0';
             tunnelRef.current.dataset.pointerY = '0';
-            window.dispatchEvent(new Event('scroll'));
+            updateTunnelRef.current?.();
           }
         }}
       >
         <div className="tunnel-sticky">
-          <div className="tunnel-skyline" style={{ backgroundImage: `url(${lowerCityExtension})` }} />
+          <img className="tunnel-skyline" src={lowerCityExtension} alt="" loading="lazy" decoding="async" />
           <div className="tunnel-vignette" />
           <div className="tunnel-grid" />
           <div className="tunnel-ring tunnel-ring-one" />
@@ -349,7 +363,7 @@ function App() {
                 style={{ '--card-index': index }}
               >
                 <div className="tunnel-card-image-wrap">
-                  <img src={card.image} alt="" draggable="false" loading="eager" />
+                  <img src={card.image} alt="" draggable="false" loading="lazy" decoding="async" />
                   <div className="tunnel-card-shade" />
                 </div>
                 <div className="tunnel-card-label">

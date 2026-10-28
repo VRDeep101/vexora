@@ -41,9 +41,12 @@ The Home, About, and Games links use the Button 2-style hover animation. The top
 These settings affect the navbar only and do not change the global page animations.
 
 
-### VEXORIA logo frames
+### Performance notes
 
-The six transparent logo frames are in `src/assets/logo-frames/`. The hero cycles through them in an opening-and-closing sequence. To adjust the speed, change the `155` millisecond interval in `src/App.jsx`. The Explore More artwork position and spaceship size/height are controlled near the end of `src/styles.css`.
+- Large visual assets use WebP to reduce transfer size while keeping transparency where needed.
+- The hero waits for its main character and wordmark images only; tunnel assets do not block the first reveal.
+- Tunnel card images use lazy loading and asynchronous decoding.
+- Pointer parallax updates CSS variables directly instead of re-rendering the whole React page on every mouse movement.
+- Mobile devices use lighter blur and particle effects.
 
-
-Hero wordmark asset: `src/assets/hero_text.png` (single transparent PNG with a soft fade-in; no frame animation).
+The hero wordmark is a single transparent image at `src/assets/hero_text.webp`; it uses a CSS reveal animation rather than a frame-by-frame logo animation. The Explore More artwork position and spaceship size/height are controlled near the end of `src/styles.css`.
